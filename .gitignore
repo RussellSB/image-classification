@@ -1,5 +1,2 @@
 *.ipynb
-datasets/mnist/train
-datasets/mnist/test/
-datasets/cifar10/train/
-datasets/cifar10/test/
+data/
