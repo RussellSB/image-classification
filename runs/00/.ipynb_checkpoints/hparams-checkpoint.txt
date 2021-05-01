@@ -1,0 +1,6 @@
+expid: 00
+model_str: resnet18
+epochs: 1
+batch_size: 128
+dataset: mnist
+lr: 0.005
