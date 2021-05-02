@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader
 import torchvision.models as models
 from torch import nn, optim
 import torch
-torch.cuda.set_device(1)
+torch.cuda.set_device(0)
 device = 'cuda'
 
 from tqdm import tqdm
@@ -27,10 +27,10 @@ import numpy as np
 #                                       Hyperparameters
 # =====================================================================================================
 
-model_str = 'resnet152' # ['resnet152', 'vgg19_bn', 'googlenet'] (TODO)
-expid = '03'
+model_str = 'googlenet' # ['resnet152', 'vgg19_bn', 'googlenet'] (TODO)
+expid = '04'
 epochs = 5 
-batch_size = 128
+batch_size = 128 #64
 dataset = 'mnist'  # ['mnist', 'cifar10'] (for now just work on mnist)
 num_classes = '10'
 lr = 0.05
@@ -41,7 +41,8 @@ lr = 0.05
 
 logpath = 'runs/'+expid
 
-if not os.path.exists(logpath): print('Overwriting logpath', logpath)
+print('Started training for', model_str, 'on', dataset)
+if os.path.exists(logpath): print('Overwriting logpath', logpath)
 shutil.rmtree(logpath, ignore_errors=True)  # overwrites previous experiment
 writer = SummaryWriter(logpath, flush_secs=50)  # tensorboard debugging
 
@@ -60,33 +61,23 @@ f.close()
         
 model = eval('models.' + model_str + '(num_classes=' + num_classes + ')')  # example: models.resnet18()
 
-if dataset == 'mnist' and 'resnet' in model_str:
-    model.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)  # Adapt to one channel for MNIST
-    
-if dataset == 'mnist' and 'vgg' in model_str:
-    layers = list(model.features.children())[:-1]
-    layers[0] = nn.Conv2d(1, 64, kernel_size=3, stride=1, padding=1)
-    model.features = nn.Sequential(*layers)
-    
-if dataset == 'mnist' and 'googlenet' in model_str:
-    class BasicConv2d(nn.Module):
+# Modify the respective model so that the first layer is wrt 1 channel (B&W) as opposed to 3 (RGB)
+if dataset == 'mnist':
 
-        def __init__(
-            self,
-            in_channels: int,
-            out_channels: int,
-            **kwargs: Any
-        ) -> None:
-            super(BasicConv2d, self).__init__()
-            self.conv = nn.Conv2d(in_channels, out_channels, bias=False, **kwargs)
-            self.bn = nn.BatchNorm2d(out_channels, eps=0.001)
+    if 'resnet' in model_str:
+        # source reference: https://pytorch.org/vision/stable/_modules/torchvision/models/resnet.html
+        model.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)  # Adapt to one channel for MNIST
 
-        def forward(self, x: Tensor) -> Tensor:
-            x = self.conv(x)
-            x = self.bn(x)
-            return F.relu(x, inplace=True)
-    
-    model.conv1 = BasicConv2d(1, 64, kernel_size=7, stride=2, padding=3)  # Adapt to one channel for MNIST
+    if 'vgg' in model_str:
+        # source reference: https://github.com/pytorch/vision/blob/master/torchvision/models/vgg.py
+        layers = list(model.features.children())[:-1]
+        layers[0] = nn.Conv2d(1, 64, kernel_size=3, stride=1, padding=1)
+        model.features = nn.Sequential(*layers)
+
+    if 'googlenet' in model_str:
+        # source reference: https://pytorch.org/vision/stable/_modules/torchvision/models/googlenet.html
+        from torchvision.models.googlenet import BasicConv2d
+        model.conv1 = BasicConv2d(1, 64, kernel_size=7, stride=2, padding=3) 
 
 model = model.to(device)
 
@@ -114,14 +105,7 @@ testloader = DataLoader(dataset=testset, batch_size=batch_size, shuffle=True)
 #                                       Optimization functions
 # =====================================================================================================
 
-criterion = nn.CrossEntropyLoss().to(device)  # Cross entropy for multi-class problems
-
-# if 'resnet' in model_str:
-#     #optimizer = torch.optim.RMSprop(model.parameters(), lr=lr)  # Adam optimizer for momentum-rms balance
-#     optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=5e-4) 
-# if 'vgg' in model_str:
-#     optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=5e-4) 
-    
+criterion = nn.CrossEntropyLoss().to(device)  # Cross entropy for multi-class problems    
 optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=5e-4) 
 
 # =====================================================================================================
@@ -144,6 +128,18 @@ for i in pbar_epoch:
         # Forward inference and loss computation
         model.zero_grad()
         out = model(x)
+        
+        '''
+        Unlike others, Googlenet implementation returns multiple logit arrays for output, 
+        must ensure that it is the relevant first as indicated in the source: 
+        
+        (https://pytorch.org/vision/stable/_modules/torchvision/models/googlenet.html)
+        
+        This must be applied in training, but not so much for testing (for some reason)
+        Might be due to some interference from torch.no_grad or model.eval() calls
+        '''
+        if 'googlenet' in model_str: out = out[0]
+            
         loss = criterion(out, y)
         loss.backward()
         optimizer.step()
@@ -152,6 +148,8 @@ for i in pbar_epoch:
         step = (i * batch_step) + j
         pbar_epoch.set_postfix(Loss=loss.item())
         writer.add_scalar('data/loss_train', loss.item(), step)
+        
+    torch.cuda.empty_cache()
 
 # =====================================================================================================
 #                                         Evaluation
@@ -167,10 +165,11 @@ for i, (x, y) in pbar_test:
     
     x, y = x.to(device), y.to(device)
     
-    # Forward inference and loss computation
-    out = model(x)
-    loss = criterion(out, y)
-    
+    # Forward inference and loss computation (no_grad greatly minimizes GPU memory consumption)
+    with torch.no_grad():
+        out = model(x)  
+        loss = criterion(out, y)
+
     # Updating logs
     step = (i * batch_step) + j
     pbar_test.set_postfix(Loss=loss.item())

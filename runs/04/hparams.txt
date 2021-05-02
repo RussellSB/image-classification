@@ -1,5 +1,5 @@
-expid: 03
-model_str: resnet152
+expid: 04
+model_str: googlenet
 epochs: 5
 batch_size: 128
 dataset: mnist
