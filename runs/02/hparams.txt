@@ -1,0 +1,6 @@
+expid: 02
+model_str: vgg19_bn
+epochs: 5
+batch_size: 128
+dataset: mnist
+lr: 0.05

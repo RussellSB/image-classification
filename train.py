@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader
 import torchvision.models as models
 from torch import nn, optim
 import torch
-torch.cuda.set_device(0)
+torch.cuda.set_device(1)
 device = 'cuda'
 
 from tqdm import tqdm
@@ -27,13 +27,13 @@ import numpy as np
 #                                       Hyperparameters
 # =====================================================================================================
 
-model_str = 'resnet152' # ['resnet152', ...] (TODO)
-expid = '01'
+model_str = 'resnet152' # ['resnet152', 'vgg19_bn', 'googlenet'] (TODO)
+expid = '03'
 epochs = 5 
-batch_size = 64
+batch_size = 128
 dataset = 'mnist'  # ['mnist', 'cifar10'] (for now just work on mnist)
 num_classes = '10'
-lr = 0.005
+lr = 0.05
 
 # =====================================================================================================
 #                                  Progress and Hparam logging
@@ -41,6 +41,7 @@ lr = 0.005
 
 logpath = 'runs/'+expid
 
+if not os.path.exists(logpath): print('Overwriting logpath', logpath)
 shutil.rmtree(logpath, ignore_errors=True)  # overwrites previous experiment
 writer = SummaryWriter(logpath, flush_secs=50)  # tensorboard debugging
 
@@ -59,10 +60,36 @@ f.close()
         
 model = eval('models.' + model_str + '(num_classes=' + num_classes + ')')  # example: models.resnet18()
 
-if dataset == 'mnist':  # and resnet
-    model.conv1 = nn.Conv2d(1, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)  # Adapt to one channel for MNIST
+if dataset == 'mnist' and 'resnet' in model_str:
+    model.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)  # Adapt to one channel for MNIST
+    
+if dataset == 'mnist' and 'vgg' in model_str:
+    layers = list(model.features.children())[:-1]
+    layers[0] = nn.Conv2d(1, 64, kernel_size=3, stride=1, padding=1)
+    model.features = nn.Sequential(*layers)
+    
+if dataset == 'mnist' and 'googlenet' in model_str:
+    class BasicConv2d(nn.Module):
+
+        def __init__(
+            self,
+            in_channels: int,
+            out_channels: int,
+            **kwargs: Any
+        ) -> None:
+            super(BasicConv2d, self).__init__()
+            self.conv = nn.Conv2d(in_channels, out_channels, bias=False, **kwargs)
+            self.bn = nn.BatchNorm2d(out_channels, eps=0.001)
+
+        def forward(self, x: Tensor) -> Tensor:
+            x = self.conv(x)
+            x = self.bn(x)
+            return F.relu(x, inplace=True)
+    
+    model.conv1 = BasicConv2d(1, 64, kernel_size=7, stride=2, padding=3)  # Adapt to one channel for MNIST
 
 model = model.to(device)
+
 
 # =====================================================================================================
 #                                       Test and Train Data 
@@ -88,7 +115,14 @@ testloader = DataLoader(dataset=testset, batch_size=batch_size, shuffle=True)
 # =====================================================================================================
 
 criterion = nn.CrossEntropyLoss().to(device)  # Cross entropy for multi-class problems
-optimizer = torch.optim.RMSprop(model.parameters(), lr=lr)  # Adam optimizer for momentum-rms balance
+
+# if 'resnet' in model_str:
+#     #optimizer = torch.optim.RMSprop(model.parameters(), lr=lr)  # Adam optimizer for momentum-rms balance
+#     optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=5e-4) 
+# if 'vgg' in model_str:
+#     optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=5e-4) 
+    
+optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=5e-4) 
 
 # =====================================================================================================
 #                                     The Training Loop

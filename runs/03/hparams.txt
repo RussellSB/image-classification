@@ -1,0 +1,6 @@
+expid: 03
+model_str: resnet152
+epochs: 5
+batch_size: 128
+dataset: mnist
+lr: 0.05
