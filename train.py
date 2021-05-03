@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader
 import torchvision.models as models
 from torch import nn, optim
 import torch
-torch.cuda.set_device(0)
+torch.cuda.set_device(1)
 device = 'cuda'
 
 from tqdm import tqdm
@@ -28,10 +28,10 @@ import numpy as np
 # =====================================================================================================
 
 model_str = 'googlenet' # ['resnet152', 'vgg19_bn', 'googlenet'] (TODO)
-expid = '04'
+expid = '05'
 epochs = 5 
 batch_size = 128 #64
-dataset = 'mnist'  # ['mnist', 'cifar10'] (for now just work on mnist)
+dataset = 'CIFAR10'  # ['MNIST', 'CIFAR10']
 num_classes = '10'
 lr = 0.05
 
@@ -59,10 +59,10 @@ f.close()
 #                                       Model Instantiation
 # =====================================================================================================
         
-model = eval('models.' + model_str + '(num_classes=' + num_classes + ')')  # example: models.resnet18()
+model = eval('models.' + model_str + '(num_classes=' + num_classes + ')')  # example: models.resnet18(num_classes=10)
 
 # Modify the respective model so that the first layer is wrt 1 channel (B&W) as opposed to 3 (RGB)
-if dataset == 'mnist':
+if dataset == 'MNIST':
 
     if 'resnet' in model_str:
         # source reference: https://pytorch.org/vision/stable/_modules/torchvision/models/resnet.html
@@ -87,18 +87,26 @@ model = model.to(device)
 # =====================================================================================================
 
 datapath = 'data/'
+mean, std = (0.5,), (0.5,)  # To change wrt dataset
 
-# Hotfix for Yann Le Cun server being down
-new_mirror = 'https://ossci-datasets.s3.amazonaws.com/mnist'
-datasets.MNIST.resources = [('/'.join([new_mirror, url.split('/')[-1]]), md5) for url, md5 in datasets.MNIST.resources]
+if dataset == 'MNIST':
+    # Hotfix for Yann Le Cun server being down
+    new_mirror = 'https://ossci-datasets.s3.amazonaws.com/mnist'
+    datasets.MNIST.resources = [('/'.join([new_mirror, url.split('/')[-1]]), md5) for url, md5 in datasets.MNIST.resources]
+    # Setting dataset params
+    mean, std = (0.1307,), (0.3081,)
+    datasets = datasets.MNIST
+    
+if dataset == 'CIFAR10':
+    # Setting dataset params
+    mean, std = [0.4914, 0.4822, 0.4465], [0.2470, 0.2435, 0.2616]
+    datasets = datasets.CIFAR10
 
-# Loading MNIST data
-transform_norm = transforms.Compose([transforms.Resize((224, 224)), transforms.ToTensor(), transforms.Normalize(mean=(0.1307,), std=(0.3081,))])
+transform_norm = transforms.Compose([transforms.Resize((224, 224)), transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
+trainset = datasets(root=datapath+'train/', train=True, download=True, transform=transform_norm)
+testset = datasets(root=datapath+'test/', train=False, download=True, transform=transform_norm)
 
-trainset = datasets.MNIST(root=datapath+'train/', train=True, download=True, transform=transform_norm)
 trainloader = DataLoader(dataset=trainset, batch_size=batch_size, shuffle=True)
-
-testset = datasets.MNIST(root=datapath+'test/', train=False, download=True, transform=transform_norm)
 testloader = DataLoader(dataset=testset, batch_size=batch_size, shuffle=True)
 
 # =====================================================================================================
@@ -135,7 +143,7 @@ for i in pbar_epoch:
         
         (https://pytorch.org/vision/stable/_modules/torchvision/models/googlenet.html)
         
-        This must be applied in training, but not so much for testing (for some reason)
+        This must be applied in training, but must not be applied later in testing (for some reason)
         Might be due to some interference from torch.no_grad or model.eval() calls
         '''
         if 'googlenet' in model_str: out = out[0]
@@ -189,8 +197,11 @@ f = open(logpath+'/results.txt', 'a')  # Opens file for appending test metric re
 f.write(classification_report(true_y, pred_y, digits=3))
 f.close()
 
-classes = ('0', '1', '2', '3', '4','5', '6', '7', '8', '9')
-
+if dataset == 'MNIST':
+    classes = ('0', '1', '2', '3', '4','5', '6', '7', '8', '9')
+if dataset == 'CIFAR10':
+    classes = ('airplane', 'automobile', 'bird', 'cat', 'deer','dog', 'frog', 'horse', 'ship', 'truck')
+    
 cf_matrix = confusion_matrix(true_y, pred_y, normalize='true')
 df_cm = pd.DataFrame(cf_matrix, index = [i for i in classes], columns = [i for i in classes])
 plt.figure(figsize = (12,7))

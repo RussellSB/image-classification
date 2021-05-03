@@ -1,0 +1,6 @@
+expid: 04
+model_str: googlenet
+epochs: 5
+batch_size: 128
+dataset: mnist
+lr: 0.05
