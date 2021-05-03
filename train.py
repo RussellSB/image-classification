@@ -28,12 +28,12 @@ import numpy as np
 # =====================================================================================================
 
 model_str = 'googlenet' # ['resnet152', 'vgg19_bn', 'googlenet'] 
-expid = '06'
+expid = '07'
 epochs = 10 # 5 
 batch_size = 128 #64
 dataset = 'CIFAR10'  # ['MNIST', 'CIFAR10']
 num_classes = '10'
-lr = 0.1 # 0.05
+lr = 0.05
 
 # =====================================================================================================
 #                                  Progress and Hparam logging
@@ -167,7 +167,7 @@ for i in pbar_epoch:
 true_y, pred_y = [], []    
     
 model.eval() # Set to evaluating
-batch_step = len(trainloader.dataset)//batch_size
+batch_step = len(testloader.dataset)//batch_size
 pbar_test = tqdm(enumerate(testloader), leave=False, total=batch_step, desc='Test Batches')
 for i, (x, y) in pbar_test:
     
