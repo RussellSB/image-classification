@@ -28,12 +28,12 @@ import numpy as np
 # =====================================================================================================
 
 model_str = 'googlenet' # ['resnet152', 'vgg19_bn', 'googlenet'] (TODO)
-expid = '05'
-epochs = 5 
+expid = '06'
+epochs = 10 # 5 
 batch_size = 128 #64
 dataset = 'CIFAR10'  # ['MNIST', 'CIFAR10']
 num_classes = '10'
-lr = 0.05
+lr = 0.1 # 0.05
 
 # =====================================================================================================
 #                                  Progress and Hparam logging
