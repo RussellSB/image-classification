@@ -1,7 +1,7 @@
 import torch
 
-model_str = 'vgg19_bn' # options: ['resnet152', 'vgg19_bn', 'googlenet'] 
-expid = '10'
+model_str = 'resnet152' # options: ['resnet152', 'vgg19_bn', 'googlenet'] 
+expid = '12'
 epochs = 10 # 5 
 batch_size = 128
 dataset = 'FashionMNIST'  # options: ['MNIST', 'CIFAR10', 'FashionMNIST']

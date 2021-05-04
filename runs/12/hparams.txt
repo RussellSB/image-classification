@@ -1,0 +1,6 @@
+expid: 12
+model_str: resnet152
+epochs: 10
+batch_size: 128
+dataset: FashionMNIST
+lr: 0.05
