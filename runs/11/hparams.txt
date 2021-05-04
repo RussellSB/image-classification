@@ -1,0 +1,6 @@
+expid: 11
+model_str: googlenet
+epochs: 10
+batch_size: 128
+dataset: FashionMNIST
+lr: 0.05

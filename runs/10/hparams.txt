@@ -1,0 +1,6 @@
+expid: 10
+model_str: vgg19_bn
+epochs: 10
+batch_size: 128
+dataset: FashionMNIST
+lr: 0.05
