@@ -10,13 +10,13 @@ import seaborn as sn
 import pandas as pd
 import numpy as np
 
-def test_model(model, testloader, writer, batch_size, logpath, dataset):       
+def test_model(model, testloader, batch_size, logpath, dataset):       
     # Will store ground truth and predicted    
     true_y, pred_y = [], []    
 
     model.eval() # Set to evaluating
     batch_step = len(testloader.dataset)//batch_size
-    pbar_test = tqdm(enumerate(testloader), leave=False, total=batch_step, desc='Test Batches')
+    pbar_test = tqdm(enumerate(testloader), leave=False, total=batch_step, desc='Testing Batches')
     for i, (x, y) in pbar_test:
 
         x, y = x.to(device), y.to(device)
@@ -27,9 +27,7 @@ def test_model(model, testloader, writer, batch_size, logpath, dataset):
             loss = criterion(out, y)
 
         # Updating logs
-        step = i
         pbar_test.set_postfix(Loss=loss.item())
-        writer.add_scalar('data/loss_test', loss.item(), step)
 
         # Get predicted labels based off of likelihood output
         probs = torch.softmax(out, dim=1) 

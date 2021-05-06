@@ -1,10 +1,11 @@
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 from torch.utils.data import DataLoader
+from torch.utils.data import random_split
 
 def get_dataloaders(dataset, datapath, batch_size):
     '''
-    Returns train and test loader with respect to the dataset specified.
+    Returns train, validation, and test loader with respect to the dataset specified.
     Each dataset is normalised with respect to their precomputed mean 
     and standard deviation.
     '''
@@ -32,8 +33,15 @@ def get_dataloaders(dataset, datapath, batch_size):
     transform_norm = transforms.Compose([transforms.Resize((224, 224)), transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
     trainset = ds(root=datapath+'train/', train=True, download=True, transform=transform_norm)
     testset = ds(root=datapath+'test/', train=False, download=True, transform=transform_norm)
-
+    
+    # For the training phase, we further split data to train (for parameter influence) and validate (for unbiased comparison purposes)
+    datasize = len(trainset)
+    trainsize = int(.9*datasize)
+    valsize = int(.1*datasize)
+    trainset, valset = random_split(trainset, [trainsize, valsize])
+    
     trainloader = DataLoader(dataset=trainset, batch_size=batch_size, shuffle=True)
+    valoader = DataLoader(dataset=valset, batch_size=batch_size, shuffle=True)
     testloader = DataLoader(dataset=testset, batch_size=batch_size, shuffle=True)
     
-    return trainloader, testloader
+    return trainloader, valoader, testloader
