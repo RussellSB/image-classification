@@ -13,20 +13,9 @@ if __name__ == '__main__':
     model = get_model(model_str, num_classes, dataset)
 
     # Prepare data and train loaded model on data
-    trainloader, valoader, testloader = get_dataloaders(dataset, datapath, batch_size)
-    model = train_model(model, trainloader, valoader, lr, writer, epochs, batch_size, model_str)
+    trainloader, testloader = get_dataloaders(dataset, datapath, batch_size)
+    model = train_model(model, trainloader, testloader, lr, writer, epochs, batch_size, model_str)
 
     # Test trained model and save results
     test_model(model, testloader, batch_size, logpath, dataset)
-
-
-
-
-
-
-
-
-
-
-
 

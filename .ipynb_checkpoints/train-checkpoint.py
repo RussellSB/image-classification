@@ -7,7 +7,7 @@ from tqdm import tqdm
 # To be imported to test also
 criterion = nn.CrossEntropyLoss().to(device)  # Cross entropy for multi-class problems  
 
-def train_model(model, trainloader, valoader, lr, writer, epochs, batch_size, model_str):
+def train_model(model, trainloader, testloader, lr, writer, epochs, batch_size, model_str):
     '''
     Defines optimizer and error criterion and trains the model
     on dataset. Two progress bars for epochs and batches respectively
@@ -62,8 +62,8 @@ def train_model(model, trainloader, valoader, lr, writer, epochs, batch_size, mo
         avg_loss = 0  # Average loss
         
         # Validation Batch loop
-        batch_steps = len(trainloader.dataset)//batch_size
-        pbar_batch = tqdm(enumerate(trainloader), leave=False, total=batch_steps, desc='Validating Batches')
+        batch_steps = len(testloader.dataset)//batch_size
+        pbar_batch = tqdm(enumerate(testloader), leave=False, total=batch_steps, desc='Validating Batches')
         for j, (x, y) in pbar_batch:
 
             x, y = x.to(device), y.to(device)

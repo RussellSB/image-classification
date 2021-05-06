@@ -30,18 +30,21 @@ def get_dataloaders(dataset, datapath, batch_size):
         mean, std = (0.2860,), (0.3530,)
         ds = datasets.FashionMNIST
 
-    transform_norm = transforms.Compose([transforms.Resize((224, 224)), transforms.ToTensor(), transforms.Normalize(mean=mean, std=std)])
-    trainset = ds(root=datapath+'train/', train=True, download=True, transform=transform_norm)
-    testset = ds(root=datapath+'test/', train=False, download=True, transform=transform_norm)
+    # Data Augmentation
+    transform_train = transforms.Compose([transforms.ToTensor(),
+                                         transforms.Resize((224, 224)),  # Resize to model input
+                                         transforms.Normalize(mean=mean, std=std),  # Normalise wrt precomputed
+                                         transforms.RandomCrop(224, padding=28, padding_mode='reflect'),  # Random crop
+                                         transforms.RandomHorizontalFlip()])  # Flip (might reduce performance on MNIST)
+        
+    transform_test = transforms.Compose([transforms.ToTensor(),
+                                         transforms.Resize((224, 224)),  # Resize to model input
+                                         transforms.Normalize(mean=mean, std=std)])  # Normalise wrt precomputed
     
-    # For the training phase, we further split data to train (for parameter influence) and validate (for unbiased comparison purposes)
-    datasize = len(trainset)
-    trainsize = int(.9*datasize)
-    valsize = int(.1*datasize)
-    trainset, valset = random_split(trainset, [trainsize, valsize])
+    trainset = ds(root=datapath+'train/', train=True, download=True, transform=transform_train)
+    testset = ds(root=datapath+'test/', train=False, download=True, transform=transform_test)
     
     trainloader = DataLoader(dataset=trainset, batch_size=batch_size, shuffle=True)
-    valoader = DataLoader(dataset=valset, batch_size=batch_size, shuffle=True)
     testloader = DataLoader(dataset=testset, batch_size=batch_size, shuffle=True)
     
-    return trainloader, valoader, testloader
+    return trainloader, testloader
