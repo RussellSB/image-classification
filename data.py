@@ -31,20 +31,20 @@ def get_dataloaders(dataset, datapath, batch_size):
         ds = datasets.FashionMNIST
 
     # Data Augmentation
-    transform_train = transforms.Compose([transforms.ToTensor(),
-                                         transforms.Resize((224, 224)),  # Resize to model input
-                                         transforms.Normalize(mean=mean, std=std),  # Normalise wrt precomputed
+    transform_train = transforms.Compose([transforms.Resize((224, 224)),  # Resize to model input
                                          transforms.RandomCrop(224, padding=28, padding_mode='reflect'),  # Random crop
-                                         transforms.RandomHorizontalFlip()])  # Flip (might reduce performance on MNIST)
+                                         transforms.RandomHorizontalFlip(),  # Flip (might reduce performance on MNIST)
+                                         transforms.ToTensor(),  # Tensor conversion
+                                         transforms.Normalize(mean=mean, std=std)])  # Normalise wrt precomputed
         
-    transform_test = transforms.Compose([transforms.ToTensor(),
-                                         transforms.Resize((224, 224)),  # Resize to model input
+    transform_test = transforms.Compose([transforms.Resize((224, 224)),  # Resize to model input
+                                         transforms.ToTensor(),  # Tensor conversion
                                          transforms.Normalize(mean=mean, std=std)])  # Normalise wrt precomputed
     
     trainset = ds(root=datapath+'train/', train=True, download=True, transform=transform_train)
     testset = ds(root=datapath+'test/', train=False, download=True, transform=transform_test)
     
     trainloader = DataLoader(dataset=trainset, batch_size=batch_size, shuffle=True)
-    testloader = DataLoader(dataset=testset, batch_size=batch_size, shuffle=True)
+    testloader = DataLoader(dataset=testset, batch_size=batch_size*2, shuffle=True)  # twice the batch size, can afford due to no grad
     
     return trainloader, testloader

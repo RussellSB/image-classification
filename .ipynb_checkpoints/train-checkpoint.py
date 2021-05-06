@@ -62,8 +62,8 @@ def train_model(model, trainloader, testloader, lr, writer, epochs, batch_size, 
         avg_loss = 0  # Average loss
         
         # Validation Batch loop
-        batch_steps = len(testloader.dataset)//batch_size
-        pbar_batch = tqdm(enumerate(testloader), leave=False, total=batch_steps, desc='Validating Batches')
+        testbatch_steps = len(testloader.dataset)//(batch_size*2)
+        pbar_batch = tqdm(enumerate(testloader), leave=False, total=testbatch_steps, desc='Validating Batches')
         for j, (x, y) in pbar_batch:
 
             x, y = x.to(device), y.to(device)
@@ -73,7 +73,7 @@ def train_model(model, trainloader, testloader, lr, writer, epochs, batch_size, 
                 model.zero_grad()
                 out = model(x)
                 loss = criterion(out, y)
-                avg_loss += loss.item() / batch_steps  # Update average loss
+                avg_loss += loss.item() / testbatch_steps  # Update average loss
 
             # Updating logs
             pbar_epoch.set_postfix(Loss=loss.item())

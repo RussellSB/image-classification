@@ -15,7 +15,8 @@ def test_model(model, testloader, batch_size, logpath, dataset):
     true_y, pred_y = [], []    
 
     model.eval() # Set to evaluating
-    batch_step = len(testloader.dataset)//batch_size
+    
+    batch_step = len(testloader.dataset)//(batch_size*2)
     pbar_test = tqdm(enumerate(testloader), leave=False, total=batch_step, desc='Testing Batches')
     for i, (x, y) in pbar_test:
 
@@ -55,7 +56,7 @@ def test_model(model, testloader, batch_size, logpath, dataset):
     cf_matrix = confusion_matrix(true_y, pred_y, normalize='true')
     df_cm = pd.DataFrame(cf_matrix, index = [i for i in classes], columns = [i for i in classes])
     plt.figure(figsize = (12,7))
-    sn.heatmap(df_cm, annot=True)
+    sn.heatmap(df_cm, annot=True, cmap='viridis')
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
 
