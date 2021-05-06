@@ -1,5 +1,5 @@
 from torch import nn, optim
-from hparams import device
+from hparams import *
 import torch
 
 from tqdm import tqdm
@@ -7,25 +7,25 @@ from tqdm import tqdm
 # To be imported to test also
 criterion = nn.CrossEntropyLoss().to(device)  # Cross entropy for multi-class problems  
 
-def train_model(model, trainloader, testloader, lr, writer, epochs, batch_size, model_str):
+def train_model(model, trainloader, testloader, writer):
     '''
     Defines optimizer and error criterion and trains the model
     on dataset. Two progress bars for epochs and batches respectively
     are displayed.
     '''
     
-    #  Optimization function  
-    optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=5e-4) 
-    
+    #  Optimization function and learning rate scheduling with a Once Cycle Learning Rate Policy
+    optimizer = optim_func(model.parameters(), max_lr, weight_decay=weight_decay) 
+    scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr, epochs=epochs, steps_per_epoch=len(trainloader))
     train_step = 0  # step counter, increment with each weight update
 
     # Epochs loop
     pbar_epoch = tqdm(range(epochs), desc='Epochs')
     for i in pbar_epoch:
 
+        # ============================== Train Batch loop ==============================
         model.train()  # Set to training
-
-        # Train Batch loop
+        
         batch_steps = len(trainloader.dataset)//batch_size
         pbar_batch = tqdm(enumerate(trainloader), leave=False, total=batch_steps, desc='Training Batches')
         for j, (x, y) in pbar_batch:
@@ -33,7 +33,6 @@ def train_model(model, trainloader, testloader, lr, writer, epochs, batch_size, 
             x, y = x.to(device), y.to(device)
 
             # Forward inference and loss computation
-            model.zero_grad()
             out = model(x)
 
             '''
@@ -49,7 +48,14 @@ def train_model(model, trainloader, testloader, lr, writer, epochs, batch_size, 
 
             loss = criterion(out, y)
             loss.backward()
+            
+            # Gradient clipping
+            if grad_clip: nn.utils.clip_grad_value_(model.parameters(), grad_clip)
+            
             optimizer.step()
+            optimizer.zero_grad()
+            
+            scheduler.step()
 
             # Updating logs
             pbar_epoch.set_postfix(Loss=loss.item())
@@ -58,10 +64,10 @@ def train_model(model, trainloader, testloader, lr, writer, epochs, batch_size, 
 
         torch.cuda.empty_cache()
         
+        # ============================== Validation Batch loop ==============================
         model.eval()  # Validate after each epoch not batch (a relatively inexpensive computation)
         avg_loss = 0  # Average loss
         
-        # Validation Batch loop
         testbatch_steps = len(testloader.dataset)//(batch_size*2)
         pbar_batch = tqdm(enumerate(testloader), leave=False, total=testbatch_steps, desc='Validating Batches')
         for j, (x, y) in pbar_batch:

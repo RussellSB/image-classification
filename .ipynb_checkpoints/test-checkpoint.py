@@ -1,4 +1,4 @@
-from hparams import device
+from hparams import device, batch_size, logpath
 from train import criterion
 from tqdm import tqdm
 import torch
@@ -10,7 +10,7 @@ import seaborn as sn
 import pandas as pd
 import numpy as np
 
-def test_model(model, testloader, batch_size, logpath, dataset):       
+def test_model(model, testloader, dataset):       
     # Will store ground truth and predicted    
     true_y, pred_y = [], []    
 

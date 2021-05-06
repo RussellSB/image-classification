@@ -2,8 +2,9 @@ import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 from torch.utils.data import DataLoader
 from torch.utils.data import random_split
+from hparams import batch_size
 
-def get_dataloaders(dataset, datapath, batch_size):
+def get_dataloaders(dataset, datapath):
     '''
     Returns train, validation, and test loader with respect to the dataset specified.
     Each dataset is normalised with respect to their precomputed mean 
