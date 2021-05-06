@@ -20,10 +20,9 @@ def test_model(model, testloader, dataset):
     pbar_test = tqdm(enumerate(testloader), leave=False, total=batch_step, desc='Testing Batches')
     for i, (x, y) in pbar_test:
 
-        x, y = x.to(device), y.to(device)
-
         # Forward inference and loss computation (no_grad greatly minimizes GPU memory consumption)
         with torch.no_grad():
+            x, y = x.to(device), y.to(device)
             out = model(x)  
             loss = criterion(out, y)
 
@@ -37,8 +36,6 @@ def test_model(model, testloader, dataset):
         # Add to prediction comparison buffer
         true_y.extend(y.cpu())
         pred_y.extend(preds.cpu())
-
-    writer.close()
 
     f = open(logpath+'/results.txt', 'a')  # Opens file for appending test metric results
     f.write(classification_report(true_y, pred_y, digits=3))
