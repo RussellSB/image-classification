@@ -1,4 +1,4 @@
-from hparams import device, batch_size, logpath
+from hparams import device, batch_size, logpath, labels
 from train import criterion
 from tqdm import tqdm
 import torch
@@ -41,14 +41,7 @@ def test_model(model, testloader, dataset):
     f.write(classification_report(true_y, pred_y, digits=3))
     f.close()
 
-    if dataset == 'MNIST':
-        classes = ('0', '1', '2', '3', '4','5', '6', '7', '8', '9')
-        
-    if dataset == 'CIFAR10':
-        classes = ('airplane', 'automobile', 'bird', 'cat', 'deer','dog', 'frog', 'horse', 'ship', 'truck')
-        
-    if dataset == 'FashionMNIST':
-        classes = ('top', 'trouser', 'pullover', 'dress', 'coat','sandal', 'shirt', 'sneaker', 'bag', 'ankle boot')
+    classes = labels[dataset]
 
     cf_matrix = confusion_matrix(true_y, pred_y, normalize='true')
     df_cm = pd.DataFrame(cf_matrix, index = [i for i in classes], columns = [i for i in classes])

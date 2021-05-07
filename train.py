@@ -14,9 +14,8 @@ def train_model(model, trainloader, testloader, writer):
     are displayed.
     '''
     
-    #  Optimization function and learning rate scheduling
+    #  Optimization function
     optimizer = optim_func(model.parameters(), lr=lr, momentum=momentum, weight_decay=weight_decay) 
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=200)
     train_step = 0  # step counter, increment with each weight update
 
     # Epochs loop
@@ -49,13 +48,8 @@ def train_model(model, trainloader, testloader, writer):
             loss = criterion(out, y)
             loss.backward()
             
-            # Gradient clipping
-            if grad_clip: nn.utils.clip_grad_value_(model.parameters(), grad_clip)
-            
             optimizer.step()
             optimizer.zero_grad()
-            
-            scheduler.step()
 
             # Updating logs
             pbar_epoch.set_postfix(Loss=loss.item())
