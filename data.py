@@ -23,7 +23,7 @@ def get_dataloaders(dataset, datapath):
 
     if dataset == 'CIFAR10':
         # Setting dataset params
-        mean, std = [0.4914, 0.4822, 0.4465], [0.2470, 0.2435, 0.2616]
+        mean, std = [0.4914, 0.4822, 0.4465], [0.229, 0.224, 0.225] # [0.2470, 0.2435, 0.2616] <- actual CIFAR10 std
         ds = datasets.CIFAR10
 
     if dataset == 'FashionMNIST':

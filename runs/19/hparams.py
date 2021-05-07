@@ -1,7 +1,7 @@
 import torch
 
 model_str = 'googlenet' # options: ['resnet152', 'vgg19_bn', 'googlenet'] 
-expid = '18'
+expid = '19'  # modified std of CIFAR10 to that of ImageNET
 epochs = 15 #15 #10  #5 
 batch_size = 128
 dataset = 'CIFAR10'  # options: ['MNIST', 'CIFAR10', 'FashionMNIST']
@@ -17,3 +17,9 @@ device = 'cuda'
 
 logpath = 'runs/'+expid
 datapath = 'data/'
+
+labels = {
+    'MNIST': ('0', '1', '2', '3', '4','5', '6', '7', '8', '9'),
+    'CIFAR10': ('airplane', 'automobile', 'bird', 'cat', 'deer','dog', 'frog', 'horse', 'ship', 'truck'),
+    'FashionMNIST': ('top', 'trouser', 'pullover', 'dress', 'coat','sandal', 'shirt', 'sneaker', 'bag', 'ankle boot')
+}
