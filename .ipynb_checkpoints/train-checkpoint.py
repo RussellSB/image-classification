@@ -14,9 +14,9 @@ def train_model(model, trainloader, testloader, writer):
     are displayed.
     '''
     
-    #  Optimization function and learning rate scheduling with a Once Cycle Learning Rate Policy
-    optimizer = optim_func(model.parameters(), max_lr, weight_decay=weight_decay) 
-    scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr, epochs=epochs, steps_per_epoch=len(trainloader))
+    #  Optimization function and learning rate scheduling
+    optimizer = optim_func(model.parameters(), lr=lr, momentum=momentum, weight_decay=weight_decay) 
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=200)
     train_step = 0  # step counter, increment with each weight update
 
     # Epochs loop
@@ -84,6 +84,6 @@ def train_model(model, trainloader, testloader, writer):
             # Updating logs
             pbar_epoch.set_postfix(Loss=loss.item())
             
-        writer.add_scalar('data/loss_val', avg_loss, i)
+        writer.add_scalar('data/loss_val', avg_loss, i+1)
         
     return model

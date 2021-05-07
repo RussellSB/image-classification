@@ -33,8 +33,8 @@ def get_dataloaders(dataset, datapath):
 
     # Data Augmentation
     transform_train = transforms.Compose([transforms.Resize((224, 224)),  # Resize to model input
-                                         transforms.RandomCrop(224, padding=28, padding_mode='reflect'),  # Random crop
-                                         transforms.RandomHorizontalFlip(),  # Flip (might reduce performance on MNIST)
+                                         transforms.RandomCrop(224, padding=28, padding_mode='reflect'),  # Random crop 1/8*width padding
+                                         transforms.RandomHorizontalFlip(),  # Flip (vertical would probably reduce performance on MNIST)
                                          transforms.ToTensor(),  # Tensor conversion
                                          transforms.Normalize(mean=mean, std=std)])  # Normalise wrt precomputed
         
