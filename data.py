@@ -23,7 +23,12 @@ def get_dataloaders(dataset, datapath):
 
     if dataset == 'CIFAR10':
         # Setting dataset params
-        mean, std = [0.4914, 0.4822, 0.4465], [0.229, 0.224, 0.225] # [0.2470, 0.2435, 0.2616] <- actual CIFAR10 std
+        mean, std = [0.485, 0.456, 0.406], [0.229, 0.224, 0.225] 
+        '''
+         [0.4914, 0.4822, 0.4465], [0.2470, 0.2435, 0.2616] <- actual CIFAR10 mean and std
+         [0.485, 0.456, 0.406], [0.229, 0.224, 0.225]  <- ImageNet mean and std (this std improves performance)
+         (ImageNet mean and std source: https://github.com/pytorch/examples/blob/master/imagenet/main.py)
+        '''
         ds = datasets.CIFAR10
 
     if dataset == 'FashionMNIST':

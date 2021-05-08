@@ -1,7 +1,7 @@
 import torch
 
 model_str = 'googlenet' # options: ['resnet152', 'vgg19_bn', 'googlenet'] 
-expid = '19'  # modified std of CIFAR10 to that of ImageNET
+expid = '20'  # modified std AND mean of CIFAR10 to that of ImageNET
 epochs = 15 #15 #10  #5 
 batch_size = 128
 dataset = 'CIFAR10'  # options: ['MNIST', 'CIFAR10', 'FashionMNIST']
