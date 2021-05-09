@@ -1,3 +1,4 @@
 *.ipynb
 data/
 train-BACKUP.py
+csv/

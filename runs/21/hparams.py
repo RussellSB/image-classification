@@ -1,10 +1,10 @@
 import torch
 
 model_str = 'vgg19_bn' # options: ['resnet152', 'vgg19_bn', 'googlenet'] 
-expid = '28'
-epochs = 15
+expid = '22'  # like 19 (best performing) but on vgg
+epochs = 15 #15 #10  #5 
 batch_size = 128
-dataset = 'MNIST'  # options: ['MNIST', 'CIFAR10', 'FashionMNIST']
+dataset = 'CIFAR10'  # options: ['MNIST', 'CIFAR10', 'FashionMNIST']
 num_classes = '10'
 
 lr = 0.05

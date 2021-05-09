@@ -1,10 +1,10 @@
 import torch
 
-model_str = 'googlenet' # options: ['resnet152', 'vgg19_bn', 'googlenet'] 
-expid = '20'  # modified std AND mean of CIFAR10 to that of ImageNET
-epochs = 15 #15 #10  #5 
+model_str = 'vgg19_bn' # options: ['resnet152', 'vgg19_bn', 'googlenet'] 
+expid = '28'
+epochs = 15
 batch_size = 128
-dataset = 'CIFAR10'  # options: ['MNIST', 'CIFAR10', 'FashionMNIST']
+dataset = 'MNIST'  # options: ['MNIST', 'CIFAR10', 'FashionMNIST']
 num_classes = '10'
 
 lr = 0.05
@@ -12,7 +12,7 @@ momentum = 0.9
 weight_decay = 5e-4
 optim_func = torch.optim.SGD
 
-torch.cuda.set_device(1)
+torch.cuda.set_device(0)
 device = 'cuda'
 
 logpath = 'runs/'+expid

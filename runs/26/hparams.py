@@ -1,7 +1,7 @@
 import torch
 
-model_str = 'vgg19_bn' # options: ['resnet152', 'vgg19_bn', 'googlenet'] 
-expid = '28'
+model_str = 'googlenet' # options: ['resnet152', 'vgg19_bn', 'googlenet'] 
+expid = '26'
 epochs = 15
 batch_size = 128
 dataset = 'MNIST'  # options: ['MNIST', 'CIFAR10', 'FashionMNIST']
@@ -12,7 +12,7 @@ momentum = 0.9
 weight_decay = 5e-4
 optim_func = torch.optim.SGD
 
-torch.cuda.set_device(0)
+torch.cuda.set_device(1)
 device = 'cuda'
 
 logpath = 'runs/'+expid

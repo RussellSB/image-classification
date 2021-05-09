@@ -23,10 +23,10 @@ def get_dataloaders(dataset, datapath):
 
     if dataset == 'CIFAR10':
         # Setting dataset params
-        mean, std = [0.485, 0.456, 0.406], [0.229, 0.224, 0.225] 
+        mean, std = [0.4914, 0.4822, 0.4465], [0.229, 0.224, 0.225] 
         '''
-         [0.4914, 0.4822, 0.4465], [0.2470, 0.2435, 0.2616] <- actual CIFAR10 mean and std
-         [0.485, 0.456, 0.406], [0.229, 0.224, 0.225]  <- ImageNet mean and std (this std improves performance)
+         [0.4914, 0.4822, 0.4465], [0.2470, 0.2435, 0.2616] <- CIFAR10 mean and std
+         [0.485, 0.456, 0.406], [0.229, 0.224, 0.225]  <- ImageNet mean and std (this std empirically improves performance)
          (ImageNet mean and std source: https://github.com/pytorch/examples/blob/master/imagenet/main.py)
         '''
         ds = datasets.CIFAR10
@@ -39,7 +39,7 @@ def get_dataloaders(dataset, datapath):
     # Data Augmentation
     transform_train = transforms.Compose([transforms.Resize((224, 224)),  # Resize to model input
                                          transforms.RandomCrop(224, padding=28, padding_mode='reflect'),  # Random crop 1/8*width padding
-                                         transforms.RandomHorizontalFlip(),  # Flip (vertical would probably reduce performance on MNIST)
+                                         transforms.RandomHorizontalFlip(),  # Flip
                                          transforms.ToTensor(),  # Tensor conversion
                                          transforms.Normalize(mean=mean, std=std)])  # Normalise wrt precomputed
         
