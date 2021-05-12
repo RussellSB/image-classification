@@ -2,15 +2,22 @@ import torchvision.models as models
 from hparams import device
 from torch import nn
 
+from efficientnet_pytorch import EfficientNet
+
 def get_model(model_str, num_classes, dataset):
     '''
-    Returns either resnet, vgg or googlenet initialised with random weights.
+    Returns either resnet, vgg, googlenet, or efficientnet initialised with random weights.
     If MNIST, modifies the first layer so input is with respect to 1 channel not 3.
     '''
-        
-    model = eval('models.' + model_str + '(num_classes=' + num_classes + ')')  # example: models.resnet18(num_classes=10)
+    # Get locally
+    if 'efficientnet' in model_str:
+        in_channels = 1 if 'MNIST' in dataset else 3 
+        model = EfficientNet.from_name(model_str, in_channels, num_classes=int(num_classes))
+    # Get models from PyTorch
+    else: 
+        model = eval('models.' + model_str + '(num_classes=' + num_classes + ')')  # example: models.resnet18(num_classes=10)
 
-    # Modify the respective model so that the first layer is wrt 1 channel (B&W) as opposed to 3 (RGB)
+    # Modify the respective PyTorch model so that the first layer is wrt 1 channel (B&W) as opposed to 3 (RGB)
     if 'MNIST' in dataset:
 
         if 'resnet' in model_str:

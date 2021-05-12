@@ -1,10 +1,10 @@
 import torch
 
-model_str = 'vgg19_bn' # options: ['resnet152', 'vgg19_bn', 'googlenet'] 
-expid = '28'
+model_str = 'efficientnet-b3' # options: ['resnet152', 'vgg19_bn', 'googlenet'] ... 'efficientnet-b3'
+expid = '31'
 epochs = 15
 batch_size = 128
-dataset = 'MNIST'  # options: ['MNIST', 'CIFAR10', 'FashionMNIST']
+dataset = 'CIFAR10'  # options: ['MNIST', 'CIFAR10', 'FashionMNIST']
 num_classes = '10'
 
 lr = 0.05
@@ -12,7 +12,7 @@ momentum = 0.9
 weight_decay = 5e-4
 optim_func = torch.optim.SGD
 
-torch.cuda.set_device(0)
+torch.cuda.set_device(1)
 device = 'cuda'
 
 logpath = 'runs/'+expid

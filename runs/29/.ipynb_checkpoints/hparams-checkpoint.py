@@ -12,7 +12,7 @@ momentum = 0.9
 weight_decay = 5e-4
 optim_func = torch.optim.SGD
 
-torch.cuda.set_device(1)
+torch.cuda.set_device(0)
 device = 'cuda'
 
 logpath = 'runs/'+expid
