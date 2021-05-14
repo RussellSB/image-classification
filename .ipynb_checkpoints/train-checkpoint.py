@@ -33,17 +33,7 @@ def train_model(model, trainloader, testloader, writer):
 
             # Forward inference and loss computation
             out = model(x)
-
-            '''
-            Unlike others, Googlenet implementation returns multiple logit arrays for output, 
-            must ensure that it is the relevant first as indicated in the source: 
-
-            (https://pytorch.org/vision/stable/_modules/torchvision/models/googlenet.html)
-
-            This must be applied in training, but must not be applied later in testing (for some reason)
-            Might be due to some interference from torch.no_grad or model.eval() calls
-            '''
-            if 'googlenet' in model_str: out = out[0]
+            if 'googlenet' in model_str: out = out[0]  # use logits only (no auxilary logits)
 
             loss = criterion(out, y)
             loss.backward()
