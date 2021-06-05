@@ -5,8 +5,8 @@
 </p>
 
 
-<p align="center">
-  <img width="425" height="225" src="https://github.com/RussellSB/image-classification/blob/main/images/final-results.PNG">
+<p align="left">
+  <img width="526" height="225" src="https://github.com/RussellSB/image-classification/blob/main/images/final-results.PNG">
 </p>
 
 
