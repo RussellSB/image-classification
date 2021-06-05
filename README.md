@@ -1,11 +1,14 @@
 # image-classification
-Performing and evaluating image classification tasks with deeper networks. 
 
-The deep networks tested include:
-- VGG-19
-- GoogLeNet
-- ResNet-152
-- EfficientNet-B3
+<p align="left">
+  Performing and evaluating image classification tasks with deeper networks.
+</p>
+
+
+<p align="center">
+  <img width="425" height="225" src="https://github.com/RussellSB/image-classification/blob/main/images/final-results.PNG">
+</p>
+
 
 All training was done using a Quadro RTX 6000. 
 All hyperparameters including what model to train are customisable in hparams.py.
@@ -16,6 +19,21 @@ After modifying hparams.py, run the `python main.py`. Note the hparam for experi
 log output, as well as saving your hyperparameter specifications for large scale testing. 
 
 The dataset can also be specified as required from hparams.py, as long as its provided by TorchVision. 
+
+## Resources
+
+- https://github.com/lukemelas/EfficientNet-PyTorch
+- https://pytorch.org/vision/stable/models.html
+- https://pytorch.org/vision/stable/datasets.html
+
+## Notes
+
+The deep networks tested include:
+- VGG-19
+- GoogLeNet
+- ResNet-152
+- EfficientNet-B3
+
 Tested datasets include:
 - MNIST
 - FashionMNIST
